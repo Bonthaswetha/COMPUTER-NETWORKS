@@ -116,55 +116,39 @@ Path=3<-0<-1
 
 
 #include <stdio.h>
-#define INFINITY 9999
+#define INF 9999
 #define MAX 10
 
 void dijkstra(int G[MAX][MAX], int n, int start) {
-    int cost[MAX][MAX], dist[MAX], pred[MAX], visited[MAX] = {0};
-    int count = 1, mindist, nextnode;
-
+    int dist[MAX], pred[MAX], visited[MAX] = {0};
     for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++)
-            cost[i][j] = (G[i][j] == 0) ? INFINITY : G[i][j];
-        dist[i] = cost[start][i];
+        dist[i] = (G[start][i] == 0) ? INF : G[start][i];
         pred[i] = start;
     }
+    dist[start] = 0, visited[start] = 1;
 
-    dist[start] = 0;
-    visited[start] = 1;
-
-    while (count++ < n - 1) {
-        mindist = INFINITY;
-
+    for (int count = 1; count < n; count++) {
+        int min = INF, next;
         for (int i = 0; i < n; i++)
-            if (dist[i] < mindist && !visited[i]) {
-                mindist = dist[i];
-                nextnode = i;
-            }
-
-        visited[nextnode] = 1;
-
+            if (!visited[i] && dist[i] < min) min = dist[i], next = i;
+        visited[next] = 1;
         for (int i = 0; i < n; i++)
-            if (!visited[i] && mindist + cost[nextnode][i] < dist[i]) {
-                dist[i] = mindist + cost[nextnode][i];
-                pred[i] = nextnode;
-            }
+            if (!visited[i] && dist[next] + G[next][i] < dist[i])
+                dist[i] = dist[next] + G[next][i], pred[i] = next;
     }
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++)
         if (i != start) {
             printf("\nDistance to node %d = %d\nPath: %d", i, dist[i], i);
             for (int j = i; j != start; j = pred[j])
                 printf(" <- %d", pred[j]);
         }
-    }
 }
 
 int main() {
     int G[MAX][MAX], n, start;
-    printf("Enter number of vertices: ");
+    printf("Enter vertices and adjacency matrix:\n");
     scanf("%d", &n);
-    printf("Enter adjacency matrix:\n");
     for (int i = 0; i < n; i++)
         for (int j = 0; j < n; j++)
             scanf("%d", &G[i][j]);
