@@ -78,3 +78,67 @@ Enter the received data: 11100111111111
 -----------------------------
 Data received: 11100111111111
 Error detected
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**********************************************************
+
+#include <stdio.h>
+#include <string.h>
+#define N strlen(gen_poly)
+
+char data[28], check_value[28], gen_poly[10];
+int data_length, i, j;
+
+void XOR() {
+    for (j = 1; j < N; j++) check_value[j] = (check_value[j] == gen_poly[j]) ? '0' : '1';
+}
+
+void crc() {
+    for (i = 0; i < N; i++) check_value[i] = data[i];
+    for (i = N; i <= data_length + N - 1; i++) {
+        if (check_value[0] == '1') XOR();
+        memmove(check_value, check_value + 1, N - 1);
+        check_value[N - 1] = data[i];
+    }
+}
+
+void receiver() {
+    printf("Enter received data: ");
+    scanf("%s", data);
+    crc();
+    printf("\nError %sdetected\n", strchr(check_value, '1') ? "" : "not ");
+}
+
+int main() {
+    printf("Enter data: ");
+    scanf("%s", data);
+    printf("Enter generator: ");
+    scanf("%s", gen_poly);
+
+    data_length = strlen(data);
+    strcat(data, "0000000000000000"); // Pad with max possible zeros
+    data[data_length + N - 1] = '\0';
+    crc();
+
+    printf("CRC: %s\nFinal data: %s\n", check_value, data);
+    receiver();
+    return 0;
+}
