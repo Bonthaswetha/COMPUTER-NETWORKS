@@ -112,3 +112,47 @@ Incoming packet size (10 bytes) is greater than bucket capacity (7 bytes) - PACK
 
 
 *********************************************************************************************************
+
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+#define NOF_PACKETS 10
+
+int random_size(int a) {
+    return ((random() % a) + 1) * 10;
+}
+
+int main() {
+    int packets[NOF_PACKETS], i, bucket_size, output_rate, remaining = 0, transmit_time, op;
+
+    for (i = 0; i < NOF_PACKETS; ++i)
+        packets[i] = random_size(5);
+
+    for (i = 0; i < NOF_PACKETS; ++i)
+        printf("\nPacket[%d]: %d bytes", i, packets[i]);
+
+    printf("\nEnter Output Rate and Bucket Size: ");
+    scanf("%d %d", &output_rate, &bucket_size);
+
+    for (i = 0; i < NOF_PACKETS; ++i) {
+        if (packets[i] > bucket_size || (packets[i] + remaining) > bucket_size) {
+            printf("\nPacket[%d] of size %d REJECTED", i, packets[i]);
+        } else {
+            remaining += packets[i];
+            printf("\nPacket[%d]: %d bytes - Remaining: %d", i, packets[i], remaining);
+            transmit_time = random_size(3);
+            for (int t = 0; t < transmit_time && remaining > 0; t += 10) {
+                sleep(1);
+                op = (remaining < output_rate) ? remaining : output_rate;
+                remaining -= op;
+                printf("\nTransmitted: %d bytes - Remaining: %d", op, remaining);
+            }
+        }
+    }
+    return 0;
+}
